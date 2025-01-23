@@ -4,12 +4,5 @@ on:
 jobs:
   job1:
     uses: ./.github/workflows/share_win.yml
-    with:
-      ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
-      ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
-      WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
-      WX_UID: ${{ secrets.WX_UID }}
-      CYM_TOKEN: ${{ secrets.CYM_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RUNS_ON: windows-2025
+    secrets: inherit
       
