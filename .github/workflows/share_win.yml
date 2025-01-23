@@ -15,7 +15,7 @@ on:
         required: true
       WX_UID:
         required: true
-      GITHUB_TOKEN:
+      CUSTOM_GITHUB_TOKEN:
         required: true
       ZEROTIER_TOKEN:
         required: true
@@ -50,14 +50,14 @@ jobs:
     - name: Download Sougou Wubi
       run: |
         $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
-        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.GITHUB_TOKEN }}"} 
+        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
         $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougouwubi.exe" } | Select-Object -ExpandProperty browser_download_url
         Invoke-WebRequest -Uri $downloadUrl -OutFile sougouwubi.exe
 
     - name: Download Sougou Pinyin
       run: | 
         $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
-        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.GITHUB_TOKEN }}"} 
+        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
         $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougoupinyin.exe" } | Select-Object -ExpandProperty browser_download_url
         Invoke-WebRequest -Uri $downloadUrl -OutFile "sougoupinyin.exe"
 
