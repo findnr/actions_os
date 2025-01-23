@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       WX_PUSH_APP_TOKEN:
-        description: "ZeroTier ID"
+        description: "WX_PUSH_APP_TOKEN"
         required: true
         type: string
       WX_UID:
@@ -17,6 +17,18 @@ on:
         type: string
       GITHUB_TOKEN:
         description: "GITHUB_TOKEN"
+        required: true
+        type: string
+      CYM_TOKEN:
+        description: "CYM_TOKEN"
+        required: true
+        type: string
+      ZEROTIER_ID:
+        description: "ZEROTIER_ID"
+        required: true
+        type: string
+      ZEROTIER_TOKEN:
+        description: "ZEROTIER_TOKEN"
         required: true
         type: string
 jobs:
@@ -68,7 +80,7 @@ jobs:
          Set-LocalUser -Name $currentUsername -Password $defaultPassword
          $networkAdapter = Get-NetIPAddress -InterfaceAlias "*One*" -AddressFamily IPv4
          $ip=$networkAdapter.IPAddress
-         $response=Invoke-RestMethod -Uri "https://wxpusher.zjiecode.com/api/send/message/?appToken=${env:WX_PUSH_APP_TOKEN}&content=ww:$ip&uid=${env:WX_UID}&url=http%3a%2f%2fwxpusher.zjiecode.com" -Method Get
+         $response=Invoke-RestMethod -Uri "https://wxpusher.zjiecode.com/api/send/message/?appToken=${{ inputs.WX_PUSH_APP_TOKEN }}&content=ww:$ip&uid=${{ inputs.WX_UID }}&url=http%3a%2f%2fwxpusher.zjiecode.com" -Method Get
          Write-Output $response
          Start-Sleep -Seconds 21400
     - name: create test file txt
@@ -79,7 +91,7 @@ jobs:
     - name: Upload release asset
       uses: svenstaro/upload-release-action@v2
       with:
-          repo_token: ${{ secrets.CYM_TOKEN }}
+          repo_token: ${{ inputs.CYM_TOKEN }}
           tag: v1
           file_glob: true
           overwrite: true
@@ -90,12 +102,12 @@ jobs:
         ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
         ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
       run: |
-        $response = Invoke-RestMethod -Uri "https://api.zerotier.com/api/v1/network/${env:ZEROTIER_ID}/member" -Headers @{"Authorization" = "token ${env:ZEROTIER_TOKEN}"} -Method Get -ContentType "application/json"
+        $response = Invoke-RestMethod -Uri "https://api.zerotier.com/api/v1/network/${{ inputs.ZEROTIER_ID }}/member" -Headers @{"Authorization" = "token ${{ inputs.ZEROTIER_TOKEN }}"} -Method Get -ContentType "application/json"
         $networkAdapter = Get-NetIPAddress -InterfaceAlias "*One*" -AddressFamily IPv4
         foreach ($item in $response) {
             if ($item.config.ipAssignments -eq $networkAdapter.IPAddress) {
                 $tmp=$item.nodeId
-                Invoke-RestMethod -Uri "https://api.zerotier.com/api/v1/network/${env:ZEROTIER_ID}/member/$tmp" -Headers @{"Authorization" = "token ${env:ZEROTIER_TOKEN}"} -Method Delete
+                Invoke-RestMethod -Uri "https://api.zerotier.com/api/v1/network/${{ inputs.ZEROTIER_ID }}/member/$tmp" -Headers @{"Authorization" = "token ${{ inputs.ZEROTIER_TOKEN }}"} -Method Delete
                 Write-Output $item.nodeId
             } else {
                 Write-Output "Strings are not equal"
