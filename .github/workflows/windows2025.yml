@@ -11,5 +11,4 @@ jobs:
       WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
       WX_UID: ${{ secrets.WX_UID }}
       CYM_TOKEN: ${{ secrets.CYM_TOKEN }}
-      RUNS_ON: windows-2025
       
