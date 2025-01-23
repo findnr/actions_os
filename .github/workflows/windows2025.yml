@@ -4,5 +4,6 @@ on:
 jobs:
   job1:
     uses: ./.github/workflows/share_win.yml
-    secrets: inherit
+    secrets: 
+      CUSTOM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
