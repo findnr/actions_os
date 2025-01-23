@@ -2,15 +2,28 @@ name: share_win
 
 on:
   workflow_call:  # 允许其他工作流调用
+    inputs:  # 定义可接收的输入
+      RUNS_ON:
+        description: "The runner type"
+        required: true
+        type: string
+      WX_PUSH_APP_TOKEN:
+        description: "ZeroTier ID"
+        required: true
+        type: string
+      WX_UID:
+        description: "WX_UID"
+        required: true
+        type: string
+      GITHUB_TOKEN:
+        description: "GITHUB_TOKEN"
+        required: true
+        type: string
 jobs:
   job1:
-    runs-on: windows-2025
+    runs-on: ${{ inputs.RUNS_ON }} 
     steps:
     - name: install zerotier
-      env:
-        ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
-        WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
-        WX_UID: ${{ secrets.WX_UID }}
       run: |
          $env:USERNAME
          Write-Host "downloading ZeroTier msi progra..."
@@ -22,25 +35,16 @@ jobs:
          ./zerotier_desktop_ui.exe
     # - uses: cygwin/cygwin-install-action@master
     - name: join zerotier network id
-      env:
-        ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
-        WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
-        WX_UID: ${{ secrets.WX_UID }}
       run: |
          cd 'C:\Program Files (x86)\ZeroTier\One\'
-         ./zerotier-cli join "${env:ZEROTIER_ID}"
-    - name: download sougou wubi
+         ./zerotier-cli join "${{ inputs.ZEROTIER_ID }}"
+    - name: download sougou wubi and pinyin
       run: |
         $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
-        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.GITHUB_TOKEN }}"} 
+        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ inputs.GITHUB_TOKEN }}"} 
         $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougouwubi.exe" } | Select-Object -ExpandProperty browser_download_url
         Invoke-WebRequest -Uri $downloadUrl -OutFile sougouwubi.exe
         # Start-Process -FilePath "D:\a\actions_os\actions_os\sougouwubi.exe" -ArgumentList "/S" -Wait -NoNewWindow
-    - name: download sougou pinyin
-      run: | 
-        $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
-        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.GITHUB_TOKEN }}"} 
-        $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougoupinyin.exe" } | Select-Object -ExpandProperty browser_download_url
         Invoke-WebRequest -Uri $downloadUrl -OutFile "sougoupinyin.exe"
         # Start-Process -FilePath "D:\a\actions_os\actions_os\sougoupinyin.exe" -ArgumentList "/S" -Wait -NoNewWindow
     - name: create desktop link
@@ -54,10 +58,6 @@ jobs:
         $Shortcut.TargetPath = $TargetPath
         $Shortcut.Save()
     - name: set runneradmin password and use wxpush push ip address own weixin
-      env:
-        ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
-        WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
-        WX_UID: ${{ secrets.WX_UID }}
       run: |
          cd 'C:\Program Files (x86)\ZeroTier\One\'
          ./zerotier-cli info
