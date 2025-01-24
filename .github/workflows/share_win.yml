@@ -116,7 +116,7 @@ jobs:
         $content = Get-Content -Path "./frpc.toml"
         $content = $content -replace 'serverAddr = "127.0.0.1"','${{ secrets.SERVER_ADDR }}'
         $content = $content -replace 'localPort = 22','localPort = 3389'
-        $newContent = $content -replace 'remotePort = 6000','{{ secrets.REMOTE_PORT }}'
+        $newContent = $content -replace 'remotePort = 6000','${{ secrets.REMOTE_PORT }}'
         $newContent | Set-Content -Path "./frpc.toml"
         Start-Process powershell -ArgumentList '-NoExit', '-Command', './frpc.exe -c ./frpc.toml'
     - name: Set Password and Push IP
