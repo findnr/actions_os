@@ -51,23 +51,10 @@ jobs:
         choco install autoit -y
     - name: Download Sougou Wubi
       run: |
-        # 下载安装脚本
-        $installScript = @"
-        #RequireAdmin
-        WinWait("搜狗输入法", "", 300)
-        WinActivate("搜狗输入法")
-        Send("{ENTER}")  # 模拟点击"确定"或"下一步"
-        WinWaitClose("搜狗输入法", "", 300)
-        "@
         $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
         $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
         $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougouwubi.exe" } | Select-Object -ExpandProperty browser_download_url
         Invoke-WebRequest -Uri $downloadUrl -OutFile sougouwubi.exe
-        # 写入AutoIt脚本
-        $installScript | Out-File -FilePath install.au3
-        # 并行安装并使用AutoIt处理弹窗
-        Start-Process -FilePath "sougouwubi.exe" -PassThru
-        Start-Process -FilePath "C:\Program Files (x86)\AutoIt3\AutoIt3.exe" -ArgumentList "install.au3" -Wait
     - name: Download Sougou Pinyin
       run: | 
         $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
