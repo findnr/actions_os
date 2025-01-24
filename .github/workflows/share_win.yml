@@ -107,6 +107,12 @@ jobs:
         $Shortcut.Save()
     - name: frp create link
       run: |
+        $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
+        $downloadUrl = $release.assets | Where-Object { $_.name -eq "frpc.exe" } | Select-Object -ExpandProperty browser_download_url
+        Invoke-WebRequest -Uri $downloadUrl -OutFile "frpc.exe"
+        $downloadUrl = $release.assets | Where-Object { $_.name -eq "frpc.toml" } | Select-Object -ExpandProperty browser_download_url
+        Invoke-WebRequest -Uri $downloadUrl -OutFile "frpc.toml"
         $content = Get-Content -Path "./frpc.toml"
         $content = $content -replace 'serverAddr = "127.0.0.1"','${{ secrets.SERVER_ADDR }}'
         $content = $content -replace 'localPort = 22','localPort = 3389'
