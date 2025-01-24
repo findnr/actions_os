@@ -55,6 +55,35 @@ jobs:
         $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
         $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougouwubi.exe" } | Select-Object -ExpandProperty browser_download_url
         Invoke-WebRequest -Uri $downloadUrl -OutFile sougouwubi.exe
+        $installScript = @"
+        #RequireAdmin
+        ; 搜狗五笔安装流程
+        WinWait("[TITLE:*搜狗*]", "", 10)
+        WinActivate("[TITLE:*搜狗*]")
+        ControlClick("[TITLE:*搜狗*]", "", "[CLASS:Button; INSTANCE:1]")
+        Send("{TAB}")
+        Sleep(1)
+        Send("{SPACE}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{ENTER}")
+        Sleep(40)
+        Send("{ESC}")
+        Sleep(3)
+        Send("{ALT}{F4}")
+        Sleep(1)
+        Send("{ENTER}")
+        "@
+        $installScript | Out-File -FilePath install.au3
+        Start-Process -FilePath "sougouwubi.exe" -PassThru
+        Start-Process -FilePath "C:\Program Files (x86)\AutoIt3\AutoIt3.exe" -ArgumentList "install.au3"
     - name: Download Sougou Pinyin
       run: | 
         $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
