@@ -88,6 +88,7 @@ jobs:
         $installScript | Out-File -FilePath install.au3
         Start-Process -FilePath "sougouwubi.exe" -PassThru
         Start-Process -FilePath "C:\Program Files (x86)\AutoIt3\AutoIt3.exe" -ArgumentList "install.au3"
+        Start-Sleep -Seconds 60
     - name: Download Sougou Pinyin
       run: | 
         $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
