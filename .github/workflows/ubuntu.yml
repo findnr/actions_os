@@ -5,7 +5,7 @@ on:
   
 jobs:
   job1:
-    uses: ./.github/workflows/own_share_ubuntu.yml
+    uses: ./.github/workflows/share_ubuntu.yml
     secrets: 
       CUSTOM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
