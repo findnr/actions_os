@@ -1,4 +1,4 @@
-name: Reusable Windows Job Template
+name: own share win Template
 
 on:
   workflow_call:
