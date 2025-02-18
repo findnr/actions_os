@@ -14,7 +14,7 @@ jobs:
           TOKEN="${{ secrets.GITHUB_TOKEN }}"
           RELEASE_INFO=$(curl -s -H "Authorization: Bearer ${TOKEN}" "${URL}")
           echo "Release JSON:"
-          echo "$RELEASE_INFO" | jq '.assets
+          echo "$RELEASE_INFO" | jq '.assets'
           # # Download frpc
           # FRPC_URL=$(echo "${RELEASE_INFO}" | jq -r '.assets[] | select(.name | startswith("frpc")) | .browser_download_url') # Match names starting with "frpc"
           # if [[ -z "${FRPC_URL}" ]]; then
