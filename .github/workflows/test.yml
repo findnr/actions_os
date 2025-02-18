@@ -21,7 +21,7 @@ jobs:
           echo "$RELEASE_INFO" | jq .
 
           # 获取 frpc 和 frpc.toml 下载链接
-          FRPC_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | startswith("frpc")) | .browser_download_url')
+          FRPC_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | startswith("frpcc")) | .browser_download_url')
           echo $FRPC_URL
             
 
