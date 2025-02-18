@@ -46,9 +46,9 @@ jobs:
 
       - name: Modify frpc.toml
         run: |
-          sed -i "s/serverAddr = \"127.0.0.1\"/\"${{ secrets.SERVER_ADDR }}\"/g" frpc.toml
+          sed -i "s/serverAddr = \"127.0.0.1\"/${{ secrets.SERVER_ADDR }}/g" frpc.toml
           sed -i "s/localPort = 22/localPort = 3389/g" frpc.toml
-          sed -i "s/remotePort = 6000/remotePort = \"${{ secrets.REMOTE_PORT }}\"/g" frpc.toml
+          sed -i "s/remotePort = 6000/${{ secrets.REMOTE_PORT }}/g" frpc.toml
           cat frpc.toml
 
       # - name: Run frpcc
