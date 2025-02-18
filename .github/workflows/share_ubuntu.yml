@@ -56,30 +56,7 @@ jobs:
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
           ollama run deepseek-r1 > output.log 2>&1 & disown
-
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-  
-      - name: Get frpcc frpc.toml file
-        run: |
-          URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
-          TOKEN="${{ secrets.GITHUB_TOKEN }}"
-          RELEASE_INFO=$(curl -s -H "Authorization: Bearer ${TOKEN}" "${URL}")
-          FRPCC_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | startswith("frpcc")) | .browser_download_url')
-          curl -L -o frpcc "$FRPCC_URL"
-          chmod +x frpcc
-          FRPC_TOML_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name == "frpc.toml") | .browser_download_url')
-          curl -L -o frpc.toml "$FRPC_TOML_URL"
-
-      - name: Modify frpc.toml
-        run: |
-          sed -i 's/serverAddr = "127.0.0.1"/${{ secrets.SERVER_ADDR }}/g' frpc.toml
-          sed -i 's/name = "testhttp"/name = "ubuntutcp"/g' frpc.toml
-          sed -i 's/remotePort = 6000/${{ secrets.REMOTE_PORT }}/g' frpc.toml
-
-      - name: Run frpcc
-        run: nohup ./frpcc -c frpc.toml &
-            
+          
       - name:  install samba and config samba
         run: |
           sudo bash common/install_samba.sh
