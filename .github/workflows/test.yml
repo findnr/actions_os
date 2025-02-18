@@ -1,0 +1,46 @@
+name:test
+on:
+  workflow_dispatch:
+jobs:
+  ubuntu-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+  
+      - name: Download frpc and frpc.toml
+        run: |
+          URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+  
+          RELEASE_INFO=$(curl -s -H "Authorization: Bearer ${TOKEN}" "${URL}")
+          echo ${RELEASE_INFO}
+          # # Download frpc
+          # FRPC_URL=$(echo "${RELEASE_INFO}" | jq -r '.assets[] | select(.name | startswith("frpc")) | .browser_download_url') # Match names starting with "frpc"
+          # if [[ -z "${FRPC_URL}" ]]; then
+          #   echo "Error: frpc file not found in the latest release."
+          #   exit 1
+          # fi
+          # wget -O frpc "${FRPC_URL}"
+          # chmod +x frpc # Make frpc executable
+  
+          # # Download frpc.toml
+          # FRPC_TOML_URL=$(echo "${RELEASE_INFO}" | jq -r '.assets[] | select(.name == "frpc.toml") | .browser_download_url')
+          # if [[ -z "${FRPC_TOML_URL}" ]]; then
+          #   echo "Error: frpc.toml not found in the latest release."
+          #   exit 1
+          # fi
+          # wget -O frpc.toml "${FRPC_TOML_URL}"
+  
+      # - name: Modify frpc.toml
+      #   run: |
+      #     sed -i "s/serverAddr = \"127.0.0.1\"/serverAddr = \"${{ secrets.SERVER_ADDR }}\"/g" frpc.toml
+      #     sed -i "s/name = \"test-tcp\"/localPort = 3389/g" frpc.toml
+      #     sed -i "s/remotePort = 6000/remotePort = \"${{ secrets.REMOTE_PORT }}\"/g" frpc.toml
+  
+      # - name: Run frpc
+      #   run: nohup ./frpc -c frpc.toml &
+            
+
+          
+     
