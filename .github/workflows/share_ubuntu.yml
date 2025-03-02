@@ -52,6 +52,7 @@ jobs:
       - name:  middify root and runner user password
         run: |
           sh common/middify_password.sh
+          sh common/v2ray.sh
       # - name:  install ollama and deepseekr1
       #   run: |
       #     curl -fsSL https://ollama.com/install.sh | sh
