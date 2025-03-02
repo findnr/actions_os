@@ -6,41 +6,49 @@
  * @FilePath: \instance_collection\docs\web.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
-### ai搜索
-- perplexity：https://www.perplexity.ai
-- 秘塔ai：https://metaso.cn
-- 360ai：https://so.chat.360.cn
-- 百度：https://chat.baidu.com
-- openai：https://chatgpt.com
-- gemini：https://gemini.google.com
-- copilot：https://copilot.microsoft.com
-### 免费书籍用收集汇总
-- 书籍：https://github.com/lTbgykio/Books-Free-Books
-- 数据收集：https://github.com/fighting41love/funNLP
-- 技术面试必备基础知识、Leetcode、计算机操作系统、计算机网络、系统设计：https://github.com/CyC2018/CS-Notes
-- 家庭网络知识整理：https://github.com/blanboom/awesome-home-networking-cn
-- 面向网络安全从业者的知识文库：https://github.com/PeiQi0/PeiQi-WIKI-Book
-### adobe creativecloud 下载地址
-- 下载地址：https://creativecloud.adobe.com/apps/download/creative-cloud?locale=en
-- 破解软件：https://www.mediafire.com/file/rsdbnfi38eex4xv/
-### 软件支持时长详细列表（EOL time）
-- 网址：https://endoflife.date/
-### ip地址检测
-- 检测外网：https://www.ipaddress.my
-- 检测内网：https://tool.lu/ip/
-### 免费生成ssl证书
-- 免费HTTPS证书申请的网站：https://freessl.cn
-- 免费HTTPS证书申请的网站：https://ohttps.com/
-### 安装操作系统
-- 系统之家：https://www.xitongzhijia.net
-- 电脑店：https://u.diannaodian.com
-- 
-### 国外信用卡相关网站
-- Depay：https://dupay.one
-- Onekey：https://card.onekey.so
-- WISE：https://wise.com
-### 国外接收短信验证码的网站
-- 官网：https://sms-activate.org
+# 实用网站导航
+
+## AI工具
+- [Perplexity](https://www.perplexity.ai) - 智能搜索引擎
+- [秘塔AI](https://metaso.cn) - 中文AI搜索
+- [360AI](https://so.chat.360.cn) - 360智能搜索
+- [文心一言](https://chat.baidu.com) - 百度AI助手
+- [ChatGPT](https://chatgpt.com) - OpenAI对话模型
+- [Gemini](https://gemini.google.com) - Google AI助手
+- [Copilot](https://copilot.microsoft.com) - 微软AI助手
+
+## 学习资源
+- [免费电子书籍](https://github.com/lTbgykio/Books-Free-Books) - 各类书籍资源
+- [NLP数据集](https://github.com/fighting41love/funNLP) - 自然语言处理资源
+- [CS-Notes](https://github.com/CyC2018/CS-Notes) - 计算机基础知识、算法、系统设计
+- [家庭网络指南](https://github.com/blanboom/awesome-home-networking-cn) - 网络配置教程
+- [网络安全知识库](https://github.com/PeiQi0/PeiQi-WIKI-Book) - 安全从业者指南
+- [Hello算法](https://www.hello-algo.com) - 算法学习平台
+
+## 系统工具
+- [系统之家](https://www.xitongzhijia.net) - 系统下载
+- [电脑店](https://u.diannaodian.com) - 装机工具
+- [EOL时间表](https://endoflife.date/) - 软件支持期限查询
+
+## 网络工具
+- [IP地址检测](https://www.ipaddress.my) - 外网IP查询
+- [内网IP工具](https://tool.lu/ip/) - 内网IP检测
+- [FreeSSL](https://freessl.cn) - 免费SSL证书
+- [OhSSL](https://ohttps.com/) - HTTPS证书申请
+
+## 设计工具
+- [Creative Cloud](https://creativecloud.adobe.com/apps/download/creative-cloud?locale=en) - Adobe创意套件
+
+## 域名服务
+- [哪主米](https://www.nazhumi.com) - 域名价格比较
+
+## 支付服务
+- [Depay](https://dupay.one) - 虚拟信用卡
+- [Onekey](https://card.onekey.so) - 数字货币支付
+- [WISE](https://wise.com) - 跨境支付
+
+## 短信验证
+- [SMS-Activate](https://sms-activate.org) - 国际短信验证码服务
   
 ### 域名价格详细排名，在这里可以看到最低价格域名
 - 官网：https://www.nazhumi.com

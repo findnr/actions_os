@@ -6,29 +6,35 @@
  * @FilePath: \instance_collection\docs\tools.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
-### 鼠标键盘共享到多台主机
-- synergy：https://symless.com/synergy
-### 键盘信息相关
-- 键盘按键显示(keyviz)：https://github.com/mulaRahul/keyviz
-- 获取键盘码：https://www.bejson.com/othertools/keycodes
-### 办公软件工具
-- [万彩办公大师](https://www.wofficebox.com/)
-### 深度学习
-- 飞桨：https://github.com/PaddlePaddle/Paddle
-- tensorflow：https://github.com/tensorflow/tensorflow
-- dlib：https://github.com/davisking/dlib
-- pytorch：https://github.com/pytorch/pytorch
-- keras：https://github.com/keras-team/keras
-  
-### OCR工具
-- Umi-OCR： https://github.com/hiroi-sora/Umi-OCR
-- 超轻量级中文ocr：https://github.com/DayBreak-u/chineseocr_lite
-- 车牌识别：https://github.com/szad670401/HyperLPR
-### 开发工作中常用网页工具
-- it工具：https://it-tools.tech
-- 菜鸟教程：https://www.cainiaoplus.com
-- 菜鸟工具：https://www.jyshare.com
-- 在线转工具：https://www.lzltool.com
+# 实用工具集合
 
-### 直播、录屏等相关的视频软件
-- obs：https://github.com/obsproject/obs-studio
+## 协作与共享工具
+- [Synergy](https://symless.com/synergy) - 鼠标键盘共享到多台主机
+
+## 键盘工具
+- [KeyViz](https://github.com/mulaRahul/keyviz) - 键盘按键显示工具
+- [键盘码获取工具](https://www.bejson.com/othertools/keycodes) - 获取键盘按键码
+
+## 办公软件工具
+- [万彩办公大师](https://www.wofficebox.com/) - 办公软件集合
+
+## 深度学习框架
+- [飞桨](https://github.com/PaddlePaddle/Paddle) - 百度开源深度学习平台
+- [TensorFlow](https://github.com/tensorflow/tensorflow) - Google开源机器学习框架
+- [Dlib](https://github.com/davisking/dlib) - 机器学习和数据分析工具库
+- [PyTorch](https://github.com/pytorch/pytorch) - Facebook开源深度学习框架
+- [Keras](https://github.com/keras-team/keras) - 高级神经网络API
+  
+## OCR工具
+- [Umi-OCR](https://github.com/hiroi-sora/Umi-OCR) - 开源离线OCR软件
+- [超轻量级中文OCR](https://github.com/DayBreak-u/chineseocr_lite) - 中文识别工具
+- [HyperLPR](https://github.com/szad670401/HyperLPR) - 开源车牌识别工具
+
+## 开发工作中常用网页工具
+- [IT Tools](https://it-tools.tech) - 开发者工具集合
+- [菜鸟教程](https://www.cainiaoplus.com) - 编程学习平台
+- [菜鸟工具](https://www.jyshare.com) - 实用开发工具
+- [在线转工具](https://www.lzltool.com) - 格式转换工具
+
+## 视频直播与录制工具
+- [OBS Studio](https://github.com/obsproject/obs-studio) - 开源直播和录屏软件

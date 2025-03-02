@@ -11,5 +11,6 @@ import huawei from "./huawei"
 import softether from "./softether"
 import rustdesk from "./rustdesk"
 import wireguard from "./wireguard"
+import v2ray from "./v2ray"
 
-export default [zerotier,frp,huawei,softether,rustdesk,wireguard]
+export default [zerotier,frp,huawei,softether,rustdesk,wireguard,v2ray]

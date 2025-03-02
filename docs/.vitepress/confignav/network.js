@@ -29,8 +29,8 @@ export default {
             link: '/network/wireguard/'
         },
         {
-            text: 'softether',
-            link: '/network/softether/'
+            text: 'v2ray',
+            link: '/network/v2ray/'
         }
     ]
 }

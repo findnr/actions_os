@@ -4,10 +4,10 @@ layout: home
 
 hero:
   name: "收集分享学习进步"
-  text: ""
+  text: "技术文档集合"
   tagline: 欢迎大家来贡献，让自己的技术得到总结，同时也可以帮助别人。
   actions:
-    - theme: alt
+    - theme: brand
       text: 文档的构建思路
       link: /map
     - theme: alt
@@ -29,19 +29,18 @@ hero:
       text: 信息学奥赛相关
       link: /hotcomputer
       
-
 features:
-  - title: remi源搭建phpmyadmin
-    details: 在rockylinux9的操作系统中搭建nginx,php,mariadb,phpmyadmin
-    link: /soft/nginx/reminginx.html
-  - title: nginx配制php url重写
-    details: 在nginx中配制url重写功能，在url中省去除输入（index.php）路径
-    link: /soft/nginx/writephp.html
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: 系统运维指南
+    details: 包含Linux、Windows等多个操作系统的配置和维护指南
+    link: /os/
+  - title: 开发技术文档
+    details: 涵盖Python、Java、JavaScript等多种编程语言的开发文档
+    link: /development/
+  - title: 网络配置教程
+    details: 提供Frp、ZeroTier等网络工具的配置和使用教程
+    link: /network/
+  - title: AI模型应用
+    details: 收录ChatGPT、Claude等AI模型的使用方法和最佳实践
+    link: /maxmodel/
 ---
 
