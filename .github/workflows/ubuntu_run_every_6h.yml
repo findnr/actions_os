@@ -1,0 +1,19 @@
+name: ubuntu_run_every_6h
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # 每 6 小时执行一次（UTC 时间）
+  workflow_dispatch:  # 允许手动触发
+  
+jobs:
+  job1:
+    uses: ./.github/workflows/share_ubuntu.yml
+    secrets: 
+      CUSTOM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+      ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
+      WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+      WX_UID: ${{ secrets.WX_UID }}
+      CYM_TOKEN: ${{ secrets.CYM_TOKEN }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      REMOTE_PORT: ${{ secrets.UBUNTU_REMOTE_PORT }}
