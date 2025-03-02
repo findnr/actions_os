@@ -52,10 +52,10 @@ jobs:
       - name:  middify root and runner user password
         run: |
           sh common/middify_password.sh
-      - name:  install ollama and deepseekr1
-        run: |
-          curl -fsSL https://ollama.com/install.sh | sh
-          ollama run deepseek-r1 > output.log 2>&1 & disown
+      # - name:  install ollama and deepseekr1
+      #   run: |
+      #     curl -fsSL https://ollama.com/install.sh | sh
+      #     ollama run deepseek-r1 > output.log 2>&1 & disown
           
       - name:  install samba and config samba
         run: |
