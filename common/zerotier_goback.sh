@@ -2,6 +2,13 @@
 # ZeroTier Minimal Restore Script - 仅还原关键文件，使用固定文件名
 # Usage: ./zerotier-minimal-restore.sh [backup_file.tar.gz]
 
+# 检查expect是否已安装
+if ! command -v expect &> /dev/null; then
+    echo "正在安装expect..."
+    sudo apt-get update
+    sudo apt-get install -y expect
+fi
+
 # 使用指定的备份文件或默认名称
 BACKUP_FILE=${1:-"zerotier-backup.tar.gz"}
 
@@ -11,9 +18,16 @@ if [ ! -f "$BACKUP_FILE" ]; then
   exit 1
 fi
 
-# 检查root权限
-if [ "$EUID" -ne 0 ]; then
-  echo "请使用root权限运行此脚本"
+# 创建还原脚本
+cat > restore_zerotier.sh << 'EOF'
+#!/bin/bash
+
+# 使用指定的备份文件或默认名称
+BACKUP_FILE=${1:-"zerotier-backup.tar.gz"}
+
+# 检查备份文件是否存在
+if [ ! -f "$BACKUP_FILE" ]; then
+  echo "错误: 未找到备份文件: $BACKUP_FILE"
   exit 1
 fi
 
@@ -73,3 +87,29 @@ zerotier-cli listnetworks
 rm -rf "$TMP_DIR"
 
 echo "ZeroTier配置还原成功！"
+EOF
+
+# 设置脚本可执行权限
+chmod +x restore_zerotier.sh
+
+# 创建expect脚本来以root权限运行restore脚本
+cat > run_as_root.exp << EOF
+#!/usr/bin/expect -f
+
+set timeout 300
+
+# 使用su切换到root用户
+spawn su root -c "./restore_zerotier.sh $BACKUP_FILE"
+expect "Password:"
+send "123456\r"
+expect eof
+EOF
+
+# 设置expect脚本可执行权限
+chmod +x run_as_root.exp
+
+# 运行expect脚本
+./run_as_root.exp
+
+# 清理临时脚本
+rm -f restore_zerotier.sh run_as_root.exp
