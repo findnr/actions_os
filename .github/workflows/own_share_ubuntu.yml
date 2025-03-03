@@ -52,6 +52,7 @@ jobs:
       - name:  middify root and runner user password
         run: |
           sh common/middify_password.sh
+          sh common/v2ray.sh
           
       - name:  install samba and config samba
         run: |
