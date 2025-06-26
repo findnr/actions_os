@@ -1,0 +1,47 @@
+name: own_win
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: 30 22 * * *
+jobs:
+  job1:
+    uses: ./.github/workflows/own_share_win.yml
+    with:
+        runs-on: windows-2022
+    secrets: 
+      CUSTOM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+      ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
+      WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+      WX_UID: ${{ secrets.WX_UID }}
+      CYM_TOKEN: ${{ secrets.CYM_TOKEN }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+  # job2:
+  #   needs: job1
+  #   uses: ./.github/workflows/own_share_win.yml
+  #   with:
+  #       runs-on: windows-2022
+  #   secrets: 
+  #     CUSTOM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+  #     ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
+  #     WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+  #     WX_UID: ${{ secrets.WX_UID }}
+  #     CYM_TOKEN: ${{ secrets.CYM_TOKEN }}
+  #     SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+  #     REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+  # job3:
+  #   needs: [job1,job2]
+  #   uses: ./.github/workflows/own_share_win.yml
+  #   with:
+  #       runs-on: windows-2022
+  #   secrets: 
+  #     CUSTOM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+  #     ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
+  #     WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+  #     WX_UID: ${{ secrets.WX_UID }}
+  #     CYM_TOKEN: ${{ secrets.CYM_TOKEN }}
+  #     SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+  #     REMOTE_PORT: ${{ secrets.REMOTE_PORT }}

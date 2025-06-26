@@ -1,0 +1,171 @@
+name: own share win Template
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: 'Runner to use'
+        required: false
+        default: 'windows-2025'
+        type: string
+    secrets:
+      ZEROTIER_ID:
+        required: true
+      WX_PUSH_APP_TOKEN:
+        required: true
+      WX_UID:
+        required: true
+      CUSTOM_GITHUB_TOKEN:
+        required: true
+      ZEROTIER_TOKEN:
+        required: true
+      CYM_TOKEN:
+        required: false
+      SERVER_ADDR:
+        required: false
+      REMOTE_PORT:
+        required: false
+
+jobs:
+  windows-job:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+    - name: Install ZeroTier
+      env:
+        ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+        WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+        WX_UID: ${{ secrets.WX_UID }}
+      run: |
+        $env:USERNAME
+        Write-Host "Downloading ZeroTier MSI..."
+        $installerPath = "$env:TEMP\ZeroTierInstaller.msi"
+        Invoke-WebRequest -Uri "https://download.zerotier.com/dist/ZeroTier%20One.msi" -OutFile $installerPath
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/i $installerPath /qn /norestart" -Wait
+        cd 'C:\Program Files (x86)\ZeroTier\One\'
+        ./zerotier_desktop_ui.exe
+
+    - name: Join ZeroTier Network
+      env:
+        ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+      run: |
+        cd 'C:\Program Files (x86)\ZeroTier\One\'
+        ./zerotier-cli join "$env:ZEROTIER_ID"
+    - name: install autoit
+      run: |
+        choco install autoit -y
+    - name: Download Sougou Wubi
+      run: |
+        $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
+        $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougouwubi.exe" } | Select-Object -ExpandProperty browser_download_url
+        Invoke-WebRequest -Uri $downloadUrl -OutFile sougouwubi.exe
+        $installScript = @"
+        #RequireAdmin
+        ; 搜狗五笔安装流程
+        WinWait("[TITLE:*搜狗*]", "", 10)
+        WinActivate("[TITLE:*搜狗*]")
+        ControlClick("[TITLE:*搜狗*]", "", "[CLASS:Button; INSTANCE:1]")
+        Send("{TAB}")
+        Sleep(1)
+        Send("{SPACE}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{TAB}")
+        Sleep(1)
+        Send("{ENTER}")
+        Sleep(40)
+        Send("{ESC}")
+        Sleep(3)
+        Send("{ALT}{F4}")
+        Sleep(1)
+        Send("{ENTER}")
+        "@
+        $installScript | Out-File -FilePath install.au3
+        Start-Process -FilePath "sougouwubi.exe" -PassThru
+        Start-Process -FilePath "C:\Program Files (x86)\AutoIt3\AutoIt3.exe" -ArgumentList "install.au3"
+        Start-Sleep -Seconds 60
+    - name: Download Sougou Pinyin
+      run: | 
+        $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
+        $downloadUrl = $release.assets | Where-Object { $_.name -eq "sougoupinyin.exe" } | Select-Object -ExpandProperty browser_download_url
+        Invoke-WebRequest -Uri $downloadUrl -OutFile "sougoupinyin.exe"
+  
+    - name: Create Desktop Link
+      run: |
+        $TargetPath = Get-Location
+        $DesktopPath = [Environment]::GetFolderPath("Desktop")
+        $ShortcutName = "install.lnk"
+        $ShortcutPath = Join-Path -Path $DesktopPath -ChildPath $ShortcutName
+        $WScriptShell = New-Object -ComObject WScript.Shell
+        $Shortcut = $WScriptShell.CreateShortcut($ShortcutPath)
+        $Shortcut.TargetPath = $TargetPath
+        $Shortcut.Save()
+    - name: frp create link
+      run: |
+        $url = "https://api.github.com/repos/${{ github.repository }}/releases/latest"
+        $release = Invoke-RestMethod -Uri $url -Headers @{"Authorization"="Bearer ${{ secrets.CUSTOM_GITHUB_TOKEN }}"} 
+        $downloadUrl = $release.assets | Where-Object { $_.name -eq "frpc.exe" } | Select-Object -ExpandProperty browser_download_url
+        Invoke-WebRequest -Uri $downloadUrl -OutFile "frpc.exe"
+        $downloadUrl = $release.assets | Where-Object { $_.name -eq "frpc.toml" } | Select-Object -ExpandProperty browser_download_url
+        Invoke-WebRequest -Uri $downloadUrl -OutFile "frpc.toml"
+        $content = Get-Content -Path "./frpc.toml"
+        $content = $content -replace 'serverAddr = "127.0.0.1"','${{ secrets.SERVER_ADDR }}'
+        $content = $content -replace 'localPort = 22','localPort = 3389'
+        $newContent = $content -replace 'remotePort = 6000','${{ secrets.REMOTE_PORT }}'
+        $newContent | Set-Content -Path "./frpc.toml"
+        Start-Process powershell -ArgumentList '-NoExit', '-Command', './frpc.exe -c ./frpc.toml'
+    - name: Set Password and Push IP
+      env:
+        WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+        WX_UID: ${{ secrets.WX_UID }}
+      run: |
+        cd 'C:\Program Files (x86)\ZeroTier\One\'
+        ./zerotier-cli info
+        Start-Sleep -Seconds 5
+        ipconfig
+        $currentUsername = $env:USERNAME
+        $defaultPassword = ConvertTo-SecureString "qaz,123456" -AsPlainText -Force
+        Set-LocalUser -Name $currentUsername -Password $defaultPassword
+        $networkAdapter = Get-NetIPAddress -InterfaceAlias "*One*" -AddressFamily IPv4
+        $ip=$networkAdapter.IPAddress
+        $response=Invoke-RestMethod -Uri "https://wxpusher.zjiecode.com/api/send/message/?appToken=${env:WX_PUSH_APP_TOKEN}&content=w:$ip&uid=${env:WX_UID}&url=http%3a%2f%2fwxpusher.zjiecode.com" -Method Get
+        Write-Output $response
+        Start-Sleep -Seconds 21400
+
+    - name: Delete Network Node
+      env:
+        ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+        ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
+      run: |
+        $response = Invoke-RestMethod -Uri "https://api.zerotier.com/api/v1/network/$env:ZEROTIER_ID/member" -Headers @{"Authorization" = "token $env:ZEROTIER_TOKEN"} -Method Get -ContentType "application/json"
+        $networkAdapter = Get-NetIPAddress -InterfaceAlias "*One*" -AddressFamily IPv4
+        foreach ($item in $response) {
+            if ($item.config.ipAssignments -eq $networkAdapter.IPAddress) {
+                $tmp=$item.nodeId
+                Invoke-RestMethod -Uri "https://api.zerotier.com/api/v1/network/$env:ZEROTIER_ID/member/$tmp" -Headers @{"Authorization" = "token $env:ZEROTIER_TOKEN"} -Method Delete
+                Write-Output $item.nodeId
+            } else {
+                Write-Output "Strings are not equal"
+            }
+        }
+
+    - name: Create Test File
+      run: |
+          mkdir file
+          cd file
+          echo "1" > own_windows.txt
+
+    - name: Upload Release Asset
+      uses: svenstaro/upload-release-action@v2
+      with:
+          repo_token: ${{ secrets.CYM_TOKEN }}
+          tag: v1
+          file_glob: true
+          overwrite: true
+          file: file/*

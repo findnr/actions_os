@@ -1,0 +1,59 @@
+name: test
+on:
+  workflow_dispatch:
+jobs:
+  ubuntu-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq curl wget
+
+      - name: Get latest release info
+        run: |
+          URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          
+          # 获取 Release 详情
+          RELEASE_INFO=$(curl -s -H "Authorization: Bearer ${TOKEN}" "${URL}")
+          
+          # 输出 Release JSON 供调试
+          # echo "Release JSON:"
+          # echo "$RELEASE_INFO" | jq .
+
+          # 获取 frpc、frpc.exe 和 frpc.toml 下载链接
+          FRPCC_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | startswith("frpcc")) | .browser_download_url')
+          FRPC_TOML_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name == "frpc.toml") | .browser_download_url')
+
+          # 确保两个文件都有找到
+          if [[ -z "$FRPCC_URL" || -z "$FRPC_TOML_URL" ]]; then
+            echo "Error: frpcc or frpc.toml not found in the latest release."
+            exit 1
+          fi
+
+          # 将变量保存到环境变量
+          echo "FRPCC_URL=$FRPCC_URL" >> $GITHUB_ENV
+          echo "FRPC_TOML_URL=$FRPC_TOML_URL" >> $GITHUB_ENV
+
+      - name: Download frpcc and frpc.toml
+        run: |
+          echo "Downloading frpcc from $FRPCC_URL"
+          curl -L -o frpcc "$FRPCC_URL"
+          chmod +x frpcc
+
+          echo "Downloading frpc.toml from $FRPC_TOML_URL"
+          curl -L -o frpc.toml "$FRPC_TOML_URL"
+          ls -lh
+
+      - name: Modify frpc.toml
+        run: |
+          sed -i "s/serverAddr = \"127.0.0.1\"/${{ secrets.SERVER_ADDR }}/g" frpc.toml
+          sed -i "s/localPort = 22/localPort = 3389/g" frpc.toml
+          sed -i "s/remotePort = 6000/${{ secrets.REMOTE_PORT }}/g" frpc.toml
+          cat frpc.toml
+
+      # - name: Run frpcc
+      #   run: nohup ./frpcc -c frpc.toml &
+            
+
+          
+     

@@ -1,0 +1,16 @@
+name: windown-2025
+on:
+  workflow_dispatch:
+jobs:
+  job1:
+    uses: ./.github/workflows/share_win.yml
+    secrets: 
+      CUSTOM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+      ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
+      WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+      WX_UID: ${{ secrets.WX_UID }}
+      CYM_TOKEN: ${{ secrets.CYM_TOKEN }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+      

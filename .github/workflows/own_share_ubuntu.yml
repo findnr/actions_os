@@ -1,0 +1,125 @@
+name: own share ubuntu Template
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: 'Runner to use'
+        required: false
+        default: 'ubuntu-latest'
+        type: string
+    secrets:
+      ZEROTIER_ID:
+        required: true
+      WX_PUSH_APP_TOKEN:
+        required: true
+      WX_UID:
+        required: true
+      CUSTOM_GITHUB_TOKEN:
+        required: true
+      ZEROTIER_TOKEN:
+        required: true
+      CYM_TOKEN:
+        required: false
+      SERVER_ADDR:
+        required: false
+      REMOTE_PORT:
+        required: false
+
+jobs:
+  ubuntu-job:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: show user name
+        run: |
+          whoami
+          
+      - name: show ubuntu version
+        run: sudo cat /proc/version
+
+      - name: install zerotier
+        env:
+          ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+        run: |
+          curl -s https://install.zerotier.com | sudo bash
+          sudo zerotier-cli join "$ZEROTIER_ID"
+      - name: install tcl tk expect
+        run: |
+          sudo apt install tcl tk expect
+          
+      - name:  middify root and runner user password
+        run: |
+          sh common/middify_password.sh
+          sh common/v2ray.sh
+          
+      - name:  install samba and config samba
+        run: |
+          sudo bash common/install_samba.sh
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+  
+      - name: Get frpcc frpc.toml file
+        run: |
+          URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          RELEASE_INFO=$(curl -s -H "Authorization: Bearer ${TOKEN}" "${URL}")
+          FRPCC_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | startswith("frpcc")) | .browser_download_url')
+          curl -L -o frpcc "$FRPCC_URL"
+          chmod +x frpcc
+          FRPC_TOML_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name == "frpc.toml") | .browser_download_url')
+          curl -L -o frpc.toml "$FRPC_TOML_URL"
+
+      - name: Modify frpc.toml
+        run: |
+          sed -i 's/serverAddr = "127.0.0.1"/${{ secrets.SERVER_ADDR }}/g' frpc.toml
+          sed -i 's/name = "testhttp"/name = "ubuntussh"/g' frpc.toml
+          sed -i 's/remotePort = 6000/${{ secrets.REMOTE_PORT }}/g' frpc.toml
+
+      - name: Run frpcc
+        run: nohup ./frpcc -c frpc.toml &
+        
+      - name:  keeplive session
+        env:
+          ZEROTIER_ID: ${{ secrets.ZEROTIER_ID }}
+          ZEROTIER_TOKEN: ${{ secrets.ZEROTIER_TOKEN }}
+          WX_PUSH_APP_TOKEN: ${{ secrets.WX_PUSH_APP_TOKEN }}
+          WX_UID: ${{ secrets.WX_UID }}
+        run: |
+          ip addr
+          partial_name="ztrf"
+          interfaces=$(ip addr show | grep -oP "(?<=: )$partial_name\S*")
+          for interface in $interfaces; do
+              ip_address=$(ip addr show $interface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+          done
+          wx_push_url="https://wxpusher.zjiecode.com/api/send/message/?appToken=$WX_PUSH_APP_TOKEN&content=u:$ip_address&uid=$WX_UID&url=http%3a%2f%2fwxpusher.zjiecode.com"
+          wx_data=$(curl -s "$wx_push_url")
+          echo $wx_data
+          sleep 21420
+          url="https://api.zerotier.com/api/v1/network/$ZEROTIER_ID/member"
+          json_response=$(curl -s -X GET -H "Authorization: token $ZEROTIER_TOKEN" "$url")
+          echo "$json_response" | jq -c '.[]' | while read -r obj; do
+              zero_ip=$(echo "$obj" | jq -r '.config.ipAssignments[0]')
+              if [ "$ip_address" = "$zero_ip" ]; then
+                  nodeId=$(echo "$obj" | jq -r '.nodeId')
+                  urls="https://api.zerotier.com/api/v1/network/$ZEROTIER_ID/member/$nodeId"
+                  json_response=$(curl -s -X DELETE -H "Authorization: token $ZEROTIER_TOKEN" "$urls")
+              else
+                  echo "Strings are not equal"
+              fi
+          done
+      - name: create test file txt
+        run: |
+          mkdir file
+          cd file
+          echo "1" > own_ununtu.txt
+      - name: Upload release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.CYM_TOKEN }}
+          tag: v1
+          file_glob: true
+          overwrite: true
+          #release_name: v 自动发布
+          file: file/*
