@@ -1,0 +1,174 @@
+name: LEDE Firmware Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: '设备型号'
+        required: true
+        default: 'r68s'
+        type: choice
+        options:
+        - r68s
+        - x86
+      kernel:
+        description: '内核版本'
+        required: true
+        default: '6.6'
+      ip:
+        description: '默认IP地址'
+        required: true
+        default: '192.168.1.180'
+      hostname:
+        description: '主机名'
+        required: true
+        default: 'lede-router'
+      build_dir:
+        description: '编译目录'
+        required: true
+        default: '/mnt'
+      clean:
+        description: '清理编译'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Free Disk Space
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: false
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+        
+    - name: Setup Build Environment
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential git
+        
+    - name: Make Script Executable
+      run: |
+        cd openwrt_lede
+        chmod +x lede_build.sh
+        
+    - name: Build Firmware
+      run: |
+        cd openwrt_lede
+        
+        # 构建参数
+        BUILD_ARGS="-d ${{ github.event.inputs.device }}"
+        BUILD_ARGS="$BUILD_ARGS -k ${{ github.event.inputs.kernel }}"
+        BUILD_ARGS="$BUILD_ARGS -i ${{ github.event.inputs.ip }}"
+        BUILD_ARGS="$BUILD_ARGS -n ${{ github.event.inputs.hostname }}"
+        BUILD_ARGS="$BUILD_ARGS -b ${{ github.event.inputs.build_dir }}"
+        BUILD_ARGS="$BUILD_ARGS -u"  # 启用上传准备
+        
+        if [ "${{ github.event.inputs.clean }}" = "true" ]; then
+          BUILD_ARGS="$BUILD_ARGS -c"
+        fi
+        
+        echo "执行编译命令: ./lede_build.sh $BUILD_ARGS"
+        ./lede_build.sh $BUILD_ARGS
+        
+    - name: Organize Files
+      run: |
+        cd ${{ github.event.inputs.build_dir }}/lede
+        
+        # 检查编译结果
+        if [ ! -d "bin/targets" ]; then
+          echo "编译失败：未找到编译产物"
+          exit 1
+        fi
+        
+        # 根据设备类型设置固件目录
+        if [ "${{ github.event.inputs.device }}" = "r68s" ]; then
+          FIRMWARE_DIR="bin/targets/rockchip/armv8"
+        else
+          FIRMWARE_DIR="bin/targets/x86/64"
+        fi
+        
+        if [ ! -d "$FIRMWARE_DIR" ]; then
+          echo "未找到固件目录: $FIRMWARE_DIR"
+          exit 1
+        fi
+        
+        cd "$FIRMWARE_DIR"
+        echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
+        
+        # 生成文件列表
+        echo "## 编译产物" > ${{ github.event.inputs.build_dir }}/firmware_list.txt
+        echo "" >> ${{ github.event.inputs.build_dir }}/firmware_list.txt
+        for file in *; do
+          if [ -f "$file" ]; then
+            size=$(du -h "$file" | cut -f1)
+            echo "- $file ($size)" >> ${{ github.event.inputs.build_dir }}/firmware_list.txt
+          fi
+        done
+        
+    - name: Generate Release Info
+      run: |
+        cd ${{ github.event.inputs.build_dir }}
+        
+        RELEASE_TAG="${{ github.event.inputs.device }}-$(date +"%Y.%m.%d-%H%M")"
+        echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+        
+        # 合并发布信息
+        if [ -f "lede/release_info.txt" ]; then
+          cat lede/release_info.txt > final_release_info.txt
+        else
+          echo "## LEDE ${{ github.event.inputs.device }} 固件" > final_release_info.txt
+          echo "" >> final_release_info.txt
+          echo "- 设备型号: ${{ github.event.inputs.device }}" >> final_release_info.txt
+          echo "- 编译时间: $(date '+%Y-%m-%d %H:%M:%S')" >> final_release_info.txt
+          echo "- 内核版本: ${{ github.event.inputs.kernel }}" >> final_release_info.txt
+          echo "- 默认IP: ${{ github.event.inputs.ip }}" >> final_release_info.txt
+          echo "- 主机名: ${{ github.event.inputs.hostname }}" >> final_release_info.txt
+          echo "- 默认用户名: root" >> final_release_info.txt
+          echo "- 默认密码: password" >> final_release_info.txt
+        fi
+        
+        # 添加文件列表
+        if [ -f "firmware_list.txt" ]; then
+          echo "" >> final_release_info.txt
+          cat firmware_list.txt >> final_release_info.txt
+        fi
+        
+        echo "" >> final_release_info.txt
+        echo "### 使用说明" >> final_release_info.txt
+        echo "1. 下载对应的固件文件" >> final_release_info.txt
+        echo "2. 使用刷机工具刷入设备" >> final_release_info.txt
+        echo "3. 首次启动后访问 http://${{ github.event.inputs.ip }}" >> final_release_info.txt
+        
+    - name: Upload to Release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ env.RELEASE_TAG }}
+        release_name: "LEDE ${{ github.event.inputs.device }} 固件 ${{ env.RELEASE_TAG }}"
+        body_path: ${{ github.event.inputs.build_dir }}/final_release_info.txt
+        file_glob: true
+        overwrite: true
+        file: ${{ github.event.inputs.build_dir }}/lede/bin/targets/${{ github.event.inputs.device == 'r68s' && 'rockchip/armv8' || 'x86/64' }}/*
+        
+    - name: Clean Up
+      if: always()
+      run: |
+        echo "清理临时文件..."
+        cd ${{ github.event.inputs.build_dir }}
+        if [ -d "lede" ]; then
+          cd lede
+          rm -rf .config tmp
+          echo "编译环境已清理"
+        fi
+        echo "工作流执行完成"
