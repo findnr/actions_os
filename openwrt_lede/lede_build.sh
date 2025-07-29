@@ -216,11 +216,15 @@ configure_r68s() {
     sed -i "s/OpenWrt /$HOSTNAME build $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt /g" package/lean/default-settings/files/zzz-default-settings
     
     # 使用R68S配置文件
-    SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"  # 获取脚本所在目录
-    if [ -f "$SCRIPT_DIR/configs/r68s.config" ]; then
-        cp "$SCRIPT_DIR/configs/r68s.config" .config
+    # 获取原始脚本目录（不是当前工作目录）
+    ORIGINAL_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    CONFIG_FILE="$ORIGINAL_SCRIPT_DIR/configs/r68s.config"
+    
+    if [ -f "$CONFIG_FILE" ]; then
+        log_info "使用配置文件: $CONFIG_FILE"
+        cp "$CONFIG_FILE" .config
     else
-        log_warn "未找到R68S配置文件，请手动配置"
+        log_warn "未找到R68S配置文件: $CONFIG_FILE，请手动配置"
         make menuconfig
     fi
 }
@@ -236,11 +240,15 @@ configure_x86() {
     sed -i "/uci commit system/i\uci set system.@system[0].hostname='$HOSTNAME'" package/lean/default-settings/files/zzz-default-settings
     
     # 使用X86配置文件
-    SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"  # 获取脚本所在目录
-    if [ -f "$SCRIPT_DIR/configs/x86.config" ]; then
-        cp "$SCRIPT_DIR/configs/x86.config" .config
+    # 获取原始脚本目录（不是当前工作目录）
+    ORIGINAL_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    CONFIG_FILE="$ORIGINAL_SCRIPT_DIR/configs/x86.config"
+    
+    if [ -f "$CONFIG_FILE" ]; then
+        log_info "使用配置文件: $CONFIG_FILE"
+        cp "$CONFIG_FILE" .config
     else
-        log_warn "未找到X86配置文件，请手动配置"
+        log_warn "未找到X86配置文件: $CONFIG_FILE，请手动配置"
         make menuconfig
     fi
 }
